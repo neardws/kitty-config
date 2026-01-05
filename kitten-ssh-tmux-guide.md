@@ -111,9 +111,14 @@ alias st-vicp="kitten ssh neardws@11830bv51hw23.vicp.fun -p 20505 -t 'tmux new -
 alias ssh-frp="kitten ssh neardws@frp-era.com -p 61537"
 alias st-frp="kitten ssh neardws@frp-era.com -p 61537 -t 'tmux new -As main'"
 
+# 服务器 3 - local (局域网)
+alias ssh-local="kitten ssh neardws@192.168.31.211"
+alias st-local="kitten ssh neardws@192.168.31.211 -t 'tmux new -As main'"
+
 # 指定会话名的函数
 st-vicp-s() { kitten ssh neardws@11830bv51hw23.vicp.fun -p 20505 -t "tmux new -As ${1:-main}"; }
 st-frp-s() { kitten ssh neardws@frp-era.com -p 61537 -t "tmux new -As ${1:-main}"; }
+st-local-s() { kitten ssh neardws@192.168.31.211 -t "tmux new -As ${1:-main}"; }
 ```
 
 ### 使用方式
@@ -127,6 +132,9 @@ st-frp-s() { kitten ssh neardws@frp-era.com -p 61537 -t "tmux new -As ${1:-main}
 | `ssh-frp` | 普通连接 frp 服务器 |
 | `st-frp` | 连接 frp + 进入 main 会话 |
 | `st-frp-s dev` | 连接 frp + 进入 dev 会话 |
+| `ssh-local` | 普通连接 local 局域网服务器 |
+| `st-local` | 连接 local + 进入 main 会话 |
+| `st-local-s dev` | 连接 local + 进入 dev 会话 |
 
 ## 命令速查表
 
