@@ -61,11 +61,12 @@ alias st-vicp="kitten ssh neardws@11830bv51hw23.vicp.fun -p 20505 -t 'tmux new -
 
 | 功能 | 快捷键 |
 |------|--------|
-| 分屏 (上/下/左/右) | `cmd+u` / `cmd+d` / `cmd+l` / `cmd+r` |
+| 水平分屏 / 垂直分屏 | `cmd+d` / `cmd+r` |
+| 移动窗口 | `cmd+u`(上) / `cmd+l`(左) / `cmd+shift+方向键` |
 | 焦点切换 (左/下/上/右) | `cmd+j` / `cmd+m` / `cmd+i` / `cmd+k` |
 | Tab 切换 | `cmd+1-9` 或 `cmd+shift+[` / `cmd+shift+]` |
-| 新建/关闭 Tab | `cmd+t` / `cmd+w` |
-| 关闭窗口 | `cmd+shift+w` |
+| 新建 Tab / 关闭 Tab | `cmd+t` / `cmd+shift+w` |
+| 关闭窗口 | `cmd+w` |
 | 调整窗口大小 | `cmd+shift+r` |
 
 详细配置见 [kitty-keybindings-guide.md](kitty-keybindings-guide.md)

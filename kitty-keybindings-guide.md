@@ -10,21 +10,30 @@ enabled_layouts splits,stack
 
 ## 快捷键速查表
 
-### 四方向分屏
+### 分屏
 
 | 快捷键 | 功能 | 命令 |
 |--------|------|------|
-| `cmd+u` | 新窗口在上方 | `launch --location=top --cwd=current` |
-| `cmd+d` | 新窗口在下方 | `launch --location=bottom --cwd=current` |
-| `cmd+l` | 新窗口在左侧 | `launch --location=left --cwd=current` |
-| `cmd+r` | 新窗口在右侧 | `launch --location=right --cwd=current` |
+| `cmd+d` | 水平分屏（新窗口在下方） | `launch --location=hsplit --cwd=current` |
+| `cmd+r` | 垂直分屏（新窗口在右侧） | `launch --location=vsplit --cwd=current` |
+
+### 移动窗口位置
+
+| 快捷键 | 功能 | 命令 |
+|--------|------|------|
+| `cmd+u` | 移动窗口到上方 | `move_window up` |
+| `cmd+l` | 移动窗口到左侧 | `move_window left` |
+| `cmd+shift+up` | 移动窗口到上方 | `move_window up` |
+| `cmd+shift+down` | 移动窗口到下方 | `move_window down` |
+| `cmd+shift+left` | 移动窗口到左侧 | `move_window left` |
+| `cmd+shift+right` | 移动窗口到右侧 | `move_window right` |
 
 ### Tab 管理
 
 | 快捷键 | 功能 | 命令 |
 |--------|------|------|
 | `cmd+t` | 新建 Tab | `new_tab` |
-| `cmd+w` | 关闭当前 Tab | `close_tab` |
+| `cmd+w` | 关闭当前分屏窗口 | `close_window` |
 | `cmd+shift+[` | 上一个 Tab | `previous_tab` |
 | `cmd+shift+]` | 下一个 Tab | `next_tab` |
 | `cmd+1` ~ `cmd+9` | 切换到第 1-9 个 Tab | `goto_tab N` |
@@ -44,7 +53,7 @@ enabled_layouts splits,stack
 
 | 快捷键 | 功能 | 命令 |
 |--------|------|------|
-| `cmd+shift+w` | 关闭当前分屏窗口 | `close_window` |
+| `cmd+shift+w` | 关闭当前 Tab | `close_tab` |
 | `cmd+shift+r` | 进入窗口调整模式 | `start_resizing_window` |
 
 ### 其他常用
@@ -68,15 +77,23 @@ enabled_layouts splits,stack
 
 # ===== 快捷键配置 (macOS) =====
 
-# --- 四方向分屏 ---
-map cmd+u launch --location=top --cwd=current
-map cmd+d launch --location=bottom --cwd=current
-map cmd+l launch --location=left --cwd=current
-map cmd+r launch --location=right --cwd=current
+# --- 分屏 ---
+# cmd+d: 水平分屏（上下，新窗口在下方）
+# cmd+r: 垂直分屏（左右，新窗口在右侧）
+map cmd+d launch --location=hsplit --cwd=current
+map cmd+r launch --location=vsplit --cwd=current
+
+# --- 移动窗口位置 ---
+map cmd+u move_window up
+map cmd+l move_window left
+map cmd+shift+up move_window up
+map cmd+shift+down move_window down
+map cmd+shift+left move_window left
+map cmd+shift+right move_window right
 
 # --- Tab 管理 ---
 map cmd+t new_tab
-map cmd+w close_tab
+map cmd+w close_window
 map cmd+shift+[ previous_tab
 map cmd+shift+] next_tab
 map cmd+1 goto_tab 1
@@ -98,7 +115,7 @@ map cmd+i neighboring_window up
 map cmd+k neighboring_window right
 
 # --- 窗口管理 ---
-map cmd+shift+w close_window
+map cmd+shift+w close_tab
 map cmd+shift+r start_resizing_window
 
 # --- 其他常用 ---
