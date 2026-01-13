@@ -115,26 +115,48 @@ alias st-frp="kitten ssh neardws@frp-era.com -p 61537 -t 'tmux new -As main'"
 alias ssh-local="kitten ssh neardws@192.168.31.211"
 alias st-local="kitten ssh neardws@192.168.31.211 -t 'tmux new -As main'"
 
-# 指定会话名的函数
-st-vicp-s() { kitten ssh neardws@11830bv51hw23.vicp.fun -p 20505 -t "tmux new -As ${1:-main}"; }
-st-frp-s() { kitten ssh neardws@frp-era.com -p 61537 -t "tmux new -As ${1:-main}"; }
-st-local-s() { kitten ssh neardws@192.168.31.211 -t "tmux new -As ${1:-main}"; }
+# 指定会话名的函数（自动设置 Tab 标题为 服务器:会话名）
+st-vicp-s() {
+  local session="${1:-main}"
+  kitty @ set-tab-title "#vicp:$session"
+  kitten ssh neardws@11830bv51hw23.vicp.fun -p 20505 -t "tmux new -As $session"
+}
+
+st-frp-s() {
+  local session="${1:-main}"
+  kitty @ set-tab-title "#frp:$session"
+  kitten ssh neardws@frp-era.com -p 61537 -t "tmux new -As $session"
+}
+
+st-local-s() {
+  local session="${1:-main}"
+  kitty @ set-tab-title "#local:$session"
+  kitten ssh neardws@192.168.31.211 -t "tmux new -As $session"
+}
 ```
 
 ### 使用方式
 
-| 命令 | 说明 |
-|------|------|
-| `ssh-vicp` | 普通连接 vicp 服务器 |
-| `st-vicp` | 连接 vicp + 进入 main 会话 |
-| `st-vicp-s dev` | 连接 vicp + 进入 dev 会话 |
-| `st-vicp-s work` | 连接 vicp + 进入 work 会话 |
-| `ssh-frp` | 普通连接 frp 服务器 |
-| `st-frp` | 连接 frp + 进入 main 会话 |
-| `st-frp-s dev` | 连接 frp + 进入 dev 会话 |
-| `ssh-local` | 普通连接 local 局域网服务器 |
-| `st-local` | 连接 local + 进入 main 会话 |
-| `st-local-s dev` | 连接 local + 进入 dev 会话 |
+| 命令 | 说明 | Tab 标题 |
+|------|------|----------|
+| `ssh-vicp` | 普通连接 vicp 服务器 | - |
+| `st-vicp` | 连接 vicp + 进入 main 会话 | - |
+| `st-vicp-s dev` | 连接 vicp + 进入 dev 会话 | `vicp:dev` |
+| `st-vicp-s work` | 连接 vicp + 进入 work 会话 | `vicp:work` |
+| `ssh-frp` | 普通连接 frp 服务器 | - |
+| `st-frp` | 连接 frp + 进入 main 会话 | - |
+| `st-frp-s dev` | 连接 frp + 进入 dev 会话 | `frp:dev` |
+| `ssh-local` | 普通连接 local 局域网服务器 | - |
+| `st-local` | 连接 local + 进入 main 会话 | - |
+| `st-local-s dev` | 连接 local + 进入 dev 会话 | `local:dev` |
+
+### Tab 标题联动说明
+
+使用 `st-xxx-s` 函数时，会自动设置 Kitty Tab 标题为 `服务器:会话名` 格式：
+
+1. **原理**: 函数内调用 `kitty @ set-tab-title "#服务器:会话名"`
+2. **# 前缀**: `tab_bar.py` 识别 `#` 开头的标题作为自定义标题显示
+3. **依赖**: 需要 `kitty.conf` 中启用 `allow_remote_control yes`
 
 ## 命令速查表
 

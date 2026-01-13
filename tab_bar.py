@@ -172,7 +172,9 @@ def get_time(max_size: int, tab: TabBarData) -> str | None:
 def get_tab(max_size: int, tab: TabBarData) -> str | None:
     accessor = TabAccessor(tab.tab_id)
 
-    if tab.title[0] == "#":
+    # 如果标题以 # 开头，使用自定义标题（去掉 # 前缀）
+    # 否则使用当前运行的程序名
+    if tab.title and len(tab.title) > 1 and tab.title[0] == "#":
         text = tab.title[1:]
     else:
         text = str(accessor.active_exe)
