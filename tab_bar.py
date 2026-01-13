@@ -56,6 +56,7 @@ time_icon = "\uf017 "      # U+F017 clock
 session_icon = "\ue795 "   # U+E795 terminal
 git_icon = "\ue725 "       # U+E725 git-branch
 user_icon = "\uf007 "      # U+F007 user
+server_icon = "\uf233 "    # U+F233 server
 
 # 圆角边框（Powerline 字符）
 ROUND_LEFT = "\ue0b6"      # U+E0B6 
@@ -227,6 +228,27 @@ def get_user(max_size: int, tab: TabBarData) -> str | None:
         return user
     return None
 
+def parse_ssh_info(tab: TabBarData) -> tuple[str, str] | None:
+    """解析 #server:session 格式，返回 (服务器, 会话) 或 None"""
+    if tab.title and len(tab.title) > 1 and tab.title[0] == "#":
+        title = tab.title[1:]
+        if ":" in title:
+            parts = title.split(":", 1)
+            return (parts[0], parts[1])
+    return None
+
+def get_ssh_label(max_size: int, tab: TabBarData) -> str | None:
+    """返回 server:session 格式的标签"""
+    info = parse_ssh_info(tab)
+    if info:
+        label = f"{info[0]}:{info[1]}"
+        if len(label) <= max_size:
+            return label
+        elif len(info[0]) <= max_size:
+            return info[0]
+        return ""
+    return None
+
 def get_tab_cell(tab: TabBarData, index: int) -> Cell:
     # 根据 tab 位置选择颜色（循环色板）
     color_index = index % len(TAB_COLORS)
@@ -307,51 +329,85 @@ def draw_center(screen: Screen, strategy: CenterStrategy):
 
 def draw_left(screen: Screen, max_length: int):
     tab = center[active_index].tab
+    ssh_info = parse_ssh_info(tab)
     
-    # 用户图标
-    user_cell = Cell(user_icon, get_user, tab, color=COLOR_2, border=(ROUND_LEFT, ROUND_RIGHT))
-    user_len = user_cell.length(max_length)
-    
-    # 文件夹图标 + 路径
-    remaining = max_length - user_len - 1
-    folder_cell = Cell(folder_icon, get_wd, tab, color=COLOR_4, border=(ROUND_LEFT, ROUND_RIGHT))
-    folder_len = folder_cell.length(remaining)
-    
-    # Git 分支图标
-    remaining2 = remaining - folder_len - 1
-    git_cell = Cell(git_icon, get_git_branch, tab, color=COLOR_1, border=(ROUND_LEFT, ROUND_RIGHT))
-    
-    # 绘制
-    user_cell.draw(screen, max_length)
-    if folder_len > 0:
-        screen.draw(" ")
-        folder_cell.draw(screen, remaining)
-    if remaining2 > 5:
-        screen.draw(" ")
-        git_cell.draw(screen, remaining2)
+    if ssh_info:
+        # SSH 模式：服务器:会话 + 远程目录 + Git（可能为空）
+        ssh_cell = Cell(server_icon, get_ssh_label, tab, color=COLOR_2, border=(ROUND_LEFT, ROUND_RIGHT))
+        ssh_len = ssh_cell.length(max_length)
+        
+        # 远程目录
+        remaining = max_length - ssh_len - 1
+        folder_cell = Cell(folder_icon, get_wd, tab, color=COLOR_4, border=(ROUND_LEFT, ROUND_RIGHT))
+        folder_len = folder_cell.length(remaining)
+        
+        # Git 分支（SSH 模式下可能不可用）
+        remaining2 = remaining - folder_len - 1
+        git_cell = Cell(git_icon, get_git_branch, tab, color=COLOR_1, border=(ROUND_LEFT, ROUND_RIGHT))
+        
+        # 绘制
+        ssh_cell.draw(screen, max_length)
+        if folder_len > 0:
+            screen.draw(" ")
+            folder_cell.draw(screen, remaining)
+        if remaining2 > 5:
+            screen.draw(" ")
+            git_cell.draw(screen, remaining2)
+    else:
+        # 本地模式：用户 + 目录 + Git
+        user_cell = Cell(user_icon, get_user, tab, color=COLOR_2, border=(ROUND_LEFT, ROUND_RIGHT))
+        user_len = user_cell.length(max_length)
+        
+        # 文件夹图标 + 路径
+        remaining = max_length - user_len - 1
+        folder_cell = Cell(folder_icon, get_wd, tab, color=COLOR_4, border=(ROUND_LEFT, ROUND_RIGHT))
+        folder_len = folder_cell.length(remaining)
+        
+        # Git 分支图标
+        remaining2 = remaining - folder_len - 1
+        git_cell = Cell(git_icon, get_git_branch, tab, color=COLOR_1, border=(ROUND_LEFT, ROUND_RIGHT))
+        
+        # 绘制
+        user_cell.draw(screen, max_length)
+        if folder_len > 0:
+            screen.draw(" ")
+            folder_cell.draw(screen, remaining)
+        if remaining2 > 5:
+            screen.draw(" ")
+            git_cell.draw(screen, remaining2)
 
 def draw_right(screen: Screen):
     max_size = screen.columns - screen.cursor.x
     tab = center[active_index].tab
+    ssh_info = parse_ssh_info(tab)
     
     # 圆角样式
     time_cell = Cell(time_icon, get_time, color=COLOR_3, border=(ROUND_LEFT, ROUND_RIGHT))
-    session_cell = Cell(session_icon, get_session, tab, color=COLOR_2, border=(ROUND_LEFT, ROUND_RIGHT))
+    
+    if ssh_info:
+        # SSH 模式：只显示时间（Session 已在左侧显示）
+        total_length = time_cell.length(max_size)
+        offset_length = max_size - total_length
+        screen.draw(" " * offset_length)
+        time_cell.draw(screen, max_size)
+    else:
+        # 本地模式：Session + 时间
+        session_cell = Cell(session_icon, get_session, tab, color=COLOR_2, border=(ROUND_LEFT, ROUND_RIGHT))
 
-    total_length = time_cell.length(max_size)
-    session_length = session_cell.length(max_size - total_length - 1)
+        total_length = time_cell.length(max_size)
+        session_length = session_cell.length(max_size - total_length - 1)
 
-    if session_length != 0:
-        total_length += 1 + session_length
+        if session_length != 0:
+            total_length += 1 + session_length
 
-    offset_length = max_size - total_length
-    screen.draw(" " * offset_length)
+        offset_length = max_size - total_length
+        screen.draw(" " * offset_length)
 
-    if session_length != 0:
-        session_cell.draw(screen, session_length)
-        screen.draw(" ")
+        if session_length != 0:
+            session_cell.draw(screen, session_length)
+            screen.draw(" ")
 
-    time_cell.draw(screen, max_size)
+        time_cell.draw(screen, max_size)
 
 def draw_tab(
     draw_data: DrawData,
